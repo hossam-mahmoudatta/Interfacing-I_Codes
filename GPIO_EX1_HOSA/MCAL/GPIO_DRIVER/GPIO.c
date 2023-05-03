@@ -20,14 +20,22 @@
  * Setup the direction of the required pin input/output.
  * If the input port number or pin number are not correct, The function will not handle the request.
  */
-void GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType direction) {
+GPIO_Error_t GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType direction) {
 	/*
 	 * Check if the input port number is greater than NUM_OF_PINS_PER_PORT value.
 	 * Or if the input pin number is greater than NUM_OF_PINS_PER_PORT value.
 	 * In this case the input is not valid port/pin number
 	 */
-	if((pin_num >= NUM_OF_PINS_PER_PORT) || (port_num >= NUM_OF_PORTS)) {
-		/* Do Nothing */
+	uint8_t GPIO_Driver_Checker = NULL;
+
+	if((pin_num >= NUM_OF_PINS_PER_PORT)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PIN_NUMBER;
+	}
+	else if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
+	}
+	else if((direction != PIN_INPUT) || (direction != PIN_OUTPUT)) {
+		GPIO_Driver_Checker = GPIO_WRONG_DIRECTION;
 	}
 	else {
 		/* Setup the pin direction as required */
@@ -65,7 +73,9 @@ void GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType
 			}
 			break;
 		}
+		GPIO_Driver_Checker = GPIO_OK;
 	}
+	return GPIO_Driver_Checker;
 }
 
 /*
@@ -74,9 +84,17 @@ void GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType
  * If the input port number or pin number are not correct, The function will not handle the request.
  * If the pin is input, this function will enable/disable the internal pull-up resistor.
  */
-void GPIO_writePin(uint8 port_num, uint8 pin_num, uint8 value) {
-	if((pin_num >= NUM_OF_PINS_PER_PORT) || (port_num >= NUM_OF_PORTS)) {
+GPIO_Error_t GPIO_writePin(uint8 port_num, uint8 pin_num, uint8 value) {
+	uint8_t GPIO_Driver_Checker = NULL;
 
+	if((pin_num >= NUM_OF_PINS_PER_PORT)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PIN_NUMBER;
+	}
+	else if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
+	}
+	else if((value != LOGIC_HIGH) || (value != LOGIC_LOW)) {
+		GPIO_Driver_Checker = GPIO_WRONG_DIRECTION;
 	}
 	else {
 		switch(port_num) {
@@ -113,8 +131,42 @@ void GPIO_writePin(uint8 port_num, uint8 pin_num, uint8 value) {
 			}
 			break;
 		}
+		GPIO_Driver_Checker = GPIO_OK;
 	}
+	return GPIO_Driver_Checker;
 }
+
+
+GPIO_Error_t GPIO_togglePin(uint8 port_num, uint8 pin_num) {
+	uint8_t GPIO_Driver_Checker = NULL;
+
+	if((pin_num >= NUM_OF_PINS_PER_PORT)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PIN_NUMBER;
+	}
+	else if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
+	}
+	else {
+		switch(port_num) {
+		case PORT_A:
+			TOG_BIT(PORTA,pin_num);
+			break;
+		case PORT_B:
+			TOG_BIT(PORTB,pin_num);
+			break;
+		case PORT_C:
+			TOG_BIT(PORTC,pin_num);
+			break;
+		case PORT_D:
+			TOG_BIT(PORTD,pin_num);
+			break;
+		}
+		GPIO_Driver_Checker = GPIO_OK;
+	}
+	return GPIO_Driver_Checker;
+}
+
+
 
 /*
  * Description :
@@ -129,8 +181,13 @@ uint8 GPIO_readPin(uint8 port_num, uint8 pin_num) {
 	 * Or if the input pin number is greater than NUM_OF_PINS_PER_PORT value.
 	 * In this case the input is not valid port/pin number
 	 */
-	if((pin_num >= NUM_OF_PINS_PER_PORT) || (port_num >= NUM_OF_PORTS)) {
-		/* Do Nothing */
+	uint8_t GPIO_Driver_Checker = NULL;
+
+	if((pin_num >= NUM_OF_PINS_PER_PORT)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PIN_NUMBER;
+	}
+	else if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
 	}
 	else {
 		/* Read the pin value as required */
@@ -168,8 +225,8 @@ uint8 GPIO_readPin(uint8 port_num, uint8 pin_num) {
 			}
 			break;
 		}
+		GPIO_Driver_Checker = GPIO_OK;
 	}
-
 	return pin_value;
 }
 
@@ -181,13 +238,18 @@ uint8 GPIO_readPin(uint8 port_num, uint8 pin_num) {
  * If the direction value is PORT_OUTPUT all pins in this port should be output pins.
  * If the input port number is not correct, The function will not handle the request.
  */
-void GPIO_setupPortDirection(uint8 port_num, GPIO_PortDirectionType direction) {
+GPIO_Error_t GPIO_setupPortDirection(uint8 port_num, GPIO_PortDirectionType direction) {
 	/*
 	 * Check if the input number is greater than NUM_OF_PORTS value.
 	 * In this case the input is not valid port number
 	 */
-	if(port_num >= NUM_OF_PORTS) {
-		/* Do Nothing */
+	uint8_t GPIO_Driver_Checker = NULL;
+
+	if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
+	}
+	else if((direction != PIN_INPUT) || (direction != PIN_OUTPUT)) {
+		GPIO_Driver_Checker = GPIO_WRONG_DIRECTION;
 	}
 	else {
 		/* Setup the port direction as required */
@@ -205,7 +267,9 @@ void GPIO_setupPortDirection(uint8 port_num, GPIO_PortDirectionType direction) {
 			DDRD = direction;
 			break;
 		}
+		GPIO_Driver_Checker = GPIO_OK;
 	}
+	return GPIO_Driver_Checker;
 }
 
 /*
@@ -215,9 +279,14 @@ void GPIO_setupPortDirection(uint8 port_num, GPIO_PortDirectionType direction) {
  * If any pin in the port is input pin this will activate/deactivate the internal pull-up resistor.
  * If the input port number is not correct, The function will not handle the request.
  */
-void GPIO_writePort(uint8 port_num, uint8 value) {
-	if(port_num >= NUM_OF_PORTS) {
-		/* Do Nothing */
+GPIO_Error_t GPIO_writePort(uint8 port_num, uint8 value) {
+
+	uint8_t GPIO_Driver_Checker = NULL;
+	if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
+	}
+	else if((value != LOGIC_HIGH) || (value != LOGIC_LOW)) {
+		GPIO_Driver_Checker = GPIO_WRONG_DIRECTION;
 	}
 	else {
 		/* Setup the port direction as required */
@@ -235,7 +304,9 @@ void GPIO_writePort(uint8 port_num, uint8 value) {
 			PORTD = value;
 			break;
 		}
+		GPIO_Driver_Checker = GPIO_OK;
 	}
+	return GPIO_Driver_Checker;
 }
 
 /*
@@ -245,9 +316,10 @@ void GPIO_writePort(uint8 port_num, uint8 value) {
  */
 uint8 GPIO_readPort(uint8 port_num) {
 	uint8 value = LOGIC_LOW;
+	uint8_t GPIO_Driver_Checker = NULL;
 
-	if(port_num >= NUM_OF_PORTS) {
-		/* Do Nothing */
+	if((port_num >= NUM_OF_PORTS)) {
+		GPIO_Driver_Checker = GPIO_WRONG_PORT_NUMBER;
 	}
 	else {
 		switch(port_num) {

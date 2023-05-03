@@ -46,6 +46,9 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 LSS += \
 GPIO_EX2_HOSA.lss \
 
+FLASH_IMAGE += \
+GPIO_EX2_HOSA.hex \
+
 SIZEDUMMY += \
 sizedummy \
 
@@ -70,6 +73,12 @@ GPIO_EX2_HOSA.lss: GPIO_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+GPIO_EX2_HOSA.hex: GPIO_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+	@echo 'Create Flash image (ihex format)'
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex GPIO_EX2_HOSA.elf  "GPIO_EX2_HOSA.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 sizedummy: GPIO_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Invoking: Print Size'
 	-avr-size --format=avr --mcu=atmega16 GPIO_EX2_HOSA.elf
@@ -78,10 +87,10 @@ sizedummy: GPIO_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 
 # Other Targets
 clean:
-	-$(RM) $(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) GPIO_EX2_HOSA.elf
+	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) GPIO_EX2_HOSA.elf
 	-@echo ' '
 
-secondary-outputs: $(LSS) $(SIZEDUMMY)
+secondary-outputs: $(LSS) $(FLASH_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents main-build
 

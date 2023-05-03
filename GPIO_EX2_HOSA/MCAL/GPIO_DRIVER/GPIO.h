@@ -23,10 +23,10 @@
 #define NUM_OF_PORTS           4
 #define NUM_OF_PINS_PER_PORT   8
 
-#define PORT_A					0
-#define PORT_B					1
-#define PORT_C               2
-#define PORT_D               3
+#define PORT_A		     0
+#define PORT_B			 1
+#define PORT_C            2
+#define PORT_D            3
 
 #define PIN_0                0
 #define PIN_1                	1
@@ -75,6 +75,13 @@ GPIO_Error_t GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirec
  * If the pin is input, this function will enable/disable the internal pull-up resistor.
  */
 GPIO_Error_t GPIO_writePin(uint8 port_num, uint8 pin_num, uint8 value);
+
+/*
+ * Description :
+ * Read and return the value for the required pin, it should be Logic High or Logic Low.
+ * If the input port number or pin number are not correct, The function will return Logic Low.
+ */
+GPIO_Error_t GPIO_togglePin(uint8 port_num, uint8 pin_num);
 
 /*
  * Description :

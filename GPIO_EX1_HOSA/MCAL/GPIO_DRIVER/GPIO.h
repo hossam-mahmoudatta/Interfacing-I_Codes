@@ -23,10 +23,10 @@
 #define NUM_OF_PORTS           4
 #define NUM_OF_PINS_PER_PORT   8
 
-#define PORT_A					0
-#define PORT_B					1
-#define PORT_C               2
-#define PORT_D               3
+#define PORT_A		     0
+#define PORT_B			 1
+#define PORT_C            2
+#define PORT_D            3
 
 #define PIN_0                0
 #define PIN_1                	1
@@ -49,6 +49,13 @@ typedef enum {
 	PORT_INPUT, PORT_OUTPUT = 0xFF
 } GPIO_PortDirectionType;
 
+typedef enum GPIO_Error_t {
+	GPIO_OK,
+	GPIO_WRONG_PIN_NUMBER,
+	GPIO_WRONG_PORT_NUMBER,
+	GPIO_WRONG_DIRECTION
+} GPIO_Error_t;
+
 
 /*******************************************************************************
  *                              Functions Prototypes                           *
@@ -59,7 +66,7 @@ typedef enum {
  * Setup the direction of the required pin input/output.
  * If the input port number or pin number are not correct, The function will not handle the request.
  */
-void GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType direction);
+GPIO_Error_t GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType direction);
 
 /*
  * Description :
@@ -67,7 +74,14 @@ void GPIO_setupPinDirection(uint8 port_num, uint8 pin_num, GPIO_PinDirectionType
  * If the input port number or pin number are not correct, The function will not handle the request.
  * If the pin is input, this function will enable/disable the internal pull-up resistor.
  */
-void GPIO_writePin(uint8 port_num, uint8 pin_num, uint8 value);
+GPIO_Error_t GPIO_writePin(uint8 port_num, uint8 pin_num, uint8 value);
+
+/*
+ * Description :
+ * Read and return the value for the required pin, it should be Logic High or Logic Low.
+ * If the input port number or pin number are not correct, The function will return Logic Low.
+ */
+GPIO_Error_t GPIO_togglePin(uint8 port_num, uint8 pin_num);
 
 /*
  * Description :
@@ -83,7 +97,7 @@ uint8 GPIO_readPin(uint8 port_num, uint8 pin_num);
  * If the direction value is PORT_OUTPUT all pins in this port should be output pins.
  * If the input port number is not correct, The function will not handle the request.
  */
-void GPIO_setupPortDirection(uint8 port_num, uint8 direction);
+GPIO_Error_t GPIO_setupPortDirection(uint8 port_num, uint8 direction);
 
 /*
  * Description :
@@ -92,7 +106,7 @@ void GPIO_setupPortDirection(uint8 port_num, uint8 direction);
  * If any pin in the port is input pin this will activate/deactivate the internal pull-up resistor.
  * If the input port number is not correct, The function will not handle the request.
  */
-void GPIO_writePort(uint8 port_num, uint8 value);
+GPIO_Error_t GPIO_writePort(uint8 port_num, uint8 value);
 
 /*
  * Description :
