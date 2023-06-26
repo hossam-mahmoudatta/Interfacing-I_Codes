@@ -47,13 +47,16 @@
 int main(void) {
 	// Initializes LED Driver
 	LED_Init(PORT_C, PIN_0);
-	float32 delay = 2;
+	LED_Off(PORT_C, PIN_0);
+	//Timer_setDelay(0.2);
+	float32 delay = 3;
 
 	while (1) {
-		Timer0_Init();
-		LED_Off(PORT_C, PIN_0);
-		Timer_setDelay(delay);
 		LED_On(PORT_C, PIN_0);
+		//_delay_ms(3000);
+		Timer_setDelay(delay);
+		LED_Off(PORT_C, PIN_0);
+		//_delay_ms(3000);
 		Timer_setDelay(delay);
 	}
 }

@@ -420,7 +420,7 @@ void Timer_setDelay(float32 timeDelay) {
 
 #if (TIMER_SELECT == TIMER0)
 	// Using the Timer Overflow Flag TOV
-	TCNT0 = 0;
+	Timer0_Init();
 	while (overFlowCounter < overflowAmount) {
 		while (BIT_IS_CLR(TIFR, TOV0)) {
 			// This function is a Busy Wait
@@ -429,7 +429,8 @@ void Timer_setDelay(float32 timeDelay) {
 		SET_BIT(TIFR, TOV0);
 	}
 	overFlowCounter = 0;
-	TCCR0 = 0;
+	Timer0_Init();
+	//TCCR0 = 0;
 
 // Using the Timer Output Compare Flag OCF0
 //	TCNT0 = 0x00;
