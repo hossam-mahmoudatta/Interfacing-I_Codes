@@ -183,7 +183,7 @@ void Timer1_setPrescaler(void) {
 }
 
 void Timer1_setMode(void) {
-	switch(TIMER_MODE) {
+	/*switch(TIMER_MODE) {
 		case NORMAL_MODE:
 			Timer1_normalMode();
 		break;
@@ -199,9 +199,9 @@ void Timer1_setMode(void) {
 		default:
 			Timer1_normalMode();
 		break;
-	}
+	}*/
 }
-
+/*
 void Timer1_normalMode(void) {
 	CLR_BIT(TCCR1A, COM1A1);
 	CLR_BIT(TCCR1A, COM1A0);
@@ -267,7 +267,7 @@ void Timer1_fastPWMMode(void) {
 	SET_BIT(TCCR1A, COM1B0);
 #endif
 }
-
+*/
 
 
 void Timer2_setPrescaler(void) {
@@ -317,7 +317,7 @@ void Timer2_setPrescaler(void) {
 }
 
 void Timer2_setMode(void) {
-	switch(TIMER_MODE) {
+	/*switch(TIMER_MODE) {
 		case NORMAL_MODE:
 			Timer2_normalMode();
 		break;
@@ -333,9 +333,9 @@ void Timer2_setMode(void) {
 		default:
 			Timer2_normalMode();
 		break;
-	}
+	}*/
 }
-
+/*
 void Timer2_normalMode(void) {
 	SET_BIT(TCCR2, FOC2);
 	CLR_BIT(TCCR2, WGM20);
@@ -377,7 +377,7 @@ void Timer2_fastPWMMode(void) {
 	SET_BIT(TCCR2, COM20);
 #endif
 }
-
+*/
 
 // Initializes and enables the Master mode for the TWI Module to start functionality
 #if (TIMER_SELECT == TIMER0)
@@ -408,19 +408,19 @@ void Timer_setDelay(float32 timeDelay) {
 	// Then clears the TIFR by setting it
 	// Iterates Overflow Counter
 
-	float32 Tick_Time = 0;
-	float32 MaxDelay_Time = 0;
-	float32 overflowAmount = 0;
-	uint8 overFlowCounter = 0;
+	float32 	tickTime 					= 0;
+	float32 	maxDelayTime 		= 0;
+	float32 	overflowAmount 	= 0;
+	uint8 		overFlowCounter 	= 0;
 
-	Tick_Time = PRESCALER_VALUE / (float)F_CPU;
-	MaxDelay_Time = Tick_Time * 256; 		// 2^n = 256
-	overflowAmount = ceil((timeDelay) / (MaxDelay_Time));
+	tickTime = PRESCALER_VALUE / (float)F_CPU;
+	maxDelayTime = tickTime * 256; 		// 2^n = 256
+	overflowAmount = ceil((timeDelay) / (maxDelayTime));
 	//overflowAmount = floor((timeDelay) / (MaxDelay_Time));
 
 #if (TIMER_SELECT == TIMER0)
 	// Using the Timer Overflow Flag TOV
-	TCNT0 = 0x00;
+	TCNT0 = 0;
 	while (overFlowCounter < overflowAmount) {
 		while (BIT_IS_CLR(TIFR, TOV0)) {
 			// This function is a Busy Wait
@@ -429,7 +429,7 @@ void Timer_setDelay(float32 timeDelay) {
 		SET_BIT(TIFR, TOV0);
 	}
 	overFlowCounter = 0;
-	TCCR0 = 0x00;
+	TCCR0 = 0;
 
 // Using the Timer Output Compare Flag OCF0
 //	TCNT0 = 0x00;

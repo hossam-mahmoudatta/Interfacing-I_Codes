@@ -184,12 +184,13 @@ void Timer2_fastPWMMode(void);
 
 void Timer_setDelay(float32 timeDelay);
 
+/*
 void Timer_Start(void);
 void Timer_Stop(void);
 void Timer_setInterrupt(void);
 void Timer_clearInterrupt(void);
 void Timer_getCounterValue(void);
 void Timer_setOutputCompare(void);
-
+*/
 
 #endif /* TIMER_H_ */

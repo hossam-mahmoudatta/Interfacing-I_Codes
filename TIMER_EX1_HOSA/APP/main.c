@@ -45,19 +45,15 @@
  *******************************************************************************/
 
 int main(void) {
-
 	// Initializes LED Driver
 	LED_Init(PORT_C, PIN_0);
-
-	Timer0_Init();
-	float32 delay = 0.5;
+	float32 delay = 2;
 
 	while (1) {
-		LED_On(PORT_C, PIN_0);
-		Timer_setDelay(delay);
+		Timer0_Init();
 		LED_Off(PORT_C, PIN_0);
+		Timer_setDelay(delay);
+		LED_On(PORT_C, PIN_0);
 		Timer_setDelay(delay);
 	}
 }
-
-
