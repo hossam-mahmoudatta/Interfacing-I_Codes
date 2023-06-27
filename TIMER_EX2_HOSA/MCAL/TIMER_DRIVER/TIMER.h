@@ -49,7 +49,7 @@
 #define INTERRUPT_DISABLE		0	// Disable the Interrupt in Timer Normal mode
 #define INTERRUPT_ENABLE		1	// Enable the Interrupt in Timer Normal mode
 
-#define INTERRUPT_MODE			INTERRUPT_ENABLE 	// Toggle OC0
+#define INTERRUPT_MODE			INTERRUPT_ENABLE 	// Choose Mode
 
 #define CTC_NORMAL					0	// OC0 is disconnected
 #define CTC_TOGGLE  				1	// Toggle OC0

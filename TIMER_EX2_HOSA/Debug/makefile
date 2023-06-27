@@ -59,6 +59,12 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 LSS += \
 TIMER_EX2_HOSA.lss \
 
+FLASH_IMAGE += \
+TIMER_EX2_HOSA.hex \
+
+EEPROM_IMAGE += \
+TIMER_EX2_HOSA.eep \
+
 SIZEDUMMY += \
 sizedummy \
 
@@ -83,6 +89,18 @@ TIMER_EX2_HOSA.lss: TIMER_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+TIMER_EX2_HOSA.hex: TIMER_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+	@echo 'Create Flash image (ihex format)'
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex TIMER_EX2_HOSA.elf  "TIMER_EX2_HOSA.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+TIMER_EX2_HOSA.eep: TIMER_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+	@echo 'Create eeprom image (ihex format)'
+	-avr-objcopy -j .eeprom --no-change-warnings --change-section-lma .eeprom=0 -O ihex TIMER_EX2_HOSA.elf  "TIMER_EX2_HOSA.eep"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 sizedummy: TIMER_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Invoking: Print Size'
 	-avr-size --format=avr --mcu=atmega16 TIMER_EX2_HOSA.elf
@@ -91,10 +109,10 @@ sizedummy: TIMER_EX2_HOSA.elf makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 
 # Other Targets
 clean:
-	-$(RM) $(ELFS)$(OBJS)$(ASM_DEPS)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) TIMER_EX2_HOSA.elf
+	-$(RM) $(FLASH_IMAGE)$(ELFS)$(OBJS)$(ASM_DEPS)$(EEPROM_IMAGE)$(S_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(LSS)$(C_DEPS) TIMER_EX2_HOSA.elf
 	-@echo ' '
 
-secondary-outputs: $(LSS) $(SIZEDUMMY)
+secondary-outputs: $(LSS) $(FLASH_IMAGE) $(EEPROM_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents main-build
 

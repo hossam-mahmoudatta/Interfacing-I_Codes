@@ -17,7 +17,7 @@
 #include "TIMER.h"
 
 #include "avr/io.h" /* To use the IO Ports Registers */
-#include <util/delay.h>
+//#include <util/delay.h>
 #include <math.h>
 
 
@@ -26,69 +26,35 @@
  *******************************************************************************/
 
 void Timer0_setPrescaler(void) {
-	switch(PRESCALER_VALUE) {
-		case PRESCALER_1024:
-			SET_BIT(TCCR0, CS00);
-			CLR_BIT(TCCR0, CS01);
-			SET_BIT(TCCR0, CS02);
-		break;
-
-		case PRESCALER_256:
-			CLR_BIT(TCCR0, CS00);
-			CLR_BIT(TCCR0, CS01);
-			SET_BIT(TCCR0, CS02);
-		break;
-
-		case PRESCALER_64:
-			SET_BIT(TCCR0, CS00);
-			SET_BIT(TCCR0, CS01);
-			CLR_BIT(TCCR0, CS02);
-		break;
-
-		case PRESCALER_8:
-			CLR_BIT(TCCR0, CS00);
-			SET_BIT(TCCR0, CS01);
-			CLR_BIT(TCCR0, CS02);
-		break;
-
-		case PRESCALER_0:
-			SET_BIT(TCCR0, CS00);
-			CLR_BIT(TCCR0, CS01);
-			CLR_BIT(TCCR0, CS02);
-		break;
-
-		case NO_CLOCK:
-			CLR_BIT(TCCR0, CS00);
-			CLR_BIT(TCCR0, CS01);
-			CLR_BIT(TCCR0, CS02);
-		break;
-
-		default:
-			SET_BIT(TCCR0, CS00);
-			CLR_BIT(TCCR0, CS01);
-			CLR_BIT(TCCR0, CS02);
-		break;
-	}
+#if (PRESCALER_VALUE == PRESCALER_1024)
+	TCCR0 = (1<<CS02) | (1<<CS00);
+#elif (PRESCALER_VALUE == PRESCALER_256)
+	SET_BIT(TCCR0, CS02);
+#elif (PRESCALER_VALUE == PRESCALER_64)
+	TCCR0 = (1<<CS01) | (1<<CS00);
+#elif (PRESCALER_VALUE == PRESCALER_8)
+	SET_BIT(TCCR0, CS01);
+#elif (PRESCALER_VALUE == PRESCALER_0)
+	SET_BIT(TCCR0, CS00);
+#elif (PRESCALER_VALUE == NO_CLOCK)
+	CLR_BIT(TCCR0, CS00);
+	CLR_BIT(TCCR0, CS01);
+	CLR_BIT(TCCR0, CS02);
+#else
+	TCCR0 = (1<<CS02) | (1<<CS00);
+#endif
 }
 
 void Timer0_setMode(void) {
-	switch(TIMER_MODE) {
-		case NORMAL_MODE:
-			Timer0_normalMode();
-		break;
-
-		case COMPARE_MODE:
-			Timer0_compareMode();
-		break;
-
-		case PWM_MODE:
-			Timer0_fastPWMMode();
-		break;
-
-		default:
-			Timer0_normalMode();
-		break;
-	}
+#if (TIMER_MODE == NORMAL_MODE)
+	Timer0_normalMode();
+#elif (TIMER_MODE == COMPARE_MODE)
+	Timer0_compareMode();
+#elif (TIMER_MODE == PWM_MODE)
+	Timer0_fastPWMMode();
+#else
+	Timer0_normalMode();
+#endif
 }
 
 void Timer0_normalMode(void) {
@@ -500,31 +466,11 @@ void Timer_setInterruptDelay(float32 timeDelay) {
 	//overflowAmount = floor((timeDelay) / (MaxDelay_Time));
 
 #if (TIMER_SELECT == TIMER0)
-	// Using the Timer Overflow Flag TOV
-	Timer0_Init();
-	while (overFlowCounter < overflowAmount) {
-		while (BIT_IS_CLR(TIFR, TOV0)) {
-			// This function is a Busy Wait
-		}
-		overFlowCounter++;
-		SET_BIT(TIFR, TOV0);
+	//Timer0_Init();
+	overFlowCounter++;
+	if (overFlowCounter == overflowAmount) {
+		overFlowCounter = 0;
 	}
-	overFlowCounter = 0;
-	Timer0_Init();
-	//TCCR0 = 0;
-
-// Using the Timer Output Compare Flag OCF0
-//	TCNT0 = 0x00;
-//	while (overFlowCounter < overflowAmount) {
-//		while (BIT_IS_CLR(TIFR, OCF0)) {
-//			// This function is a Busy Wait
-//		}
-//		// Clear the overflow flag
-//		CLR_BIT(TIFR, OCF0);
-//		overFlowCounter++;
-//	}
-//	overFlowCounter = 0;
-//	TCNT0 = 0x00;
 
 #elif (TIMER_SELECT == TIMER1)
 	TCNT1 = 0x00;
