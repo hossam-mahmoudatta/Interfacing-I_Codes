@@ -44,12 +44,51 @@
  *                              						Application Execution                              					  *
  *******************************************************************************/
 
+volatile char compareMatches = 0;
+volatile uint8 OCRValue = 0;
+// How to do different frequencies using OCR0 only?
+// I will calculate the OCR0 of the largest frequency i have
+// Then calculate the ticks for different other frequencies
+
+/*
+ISR(TIMER0_COMP_vect) {
+	compareMatches++;
+	LED_Toggle(PORT_C, PIN_0);
+
+	if(compareMatches == 2) {
+		LED_Toggle(PORT_C, PIN_1);
+	}
+	else if(compareMatches == 4) {
+		LED_Toggle(PORT_C, PIN_1);
+		LED_Toggle(PORT_C, PIN_2);
+		compareMatches = 0;
+	}
+}
+*/
+
+ISR(TIMER0_COMP_vect) {
+	LED_Toggle(PORT_C, PIN_0
+			);
+	if(OCR0 ==OCRValue) {
+		LED_Toggle(PORT_C, PIN_1);
+	}
+}
+
 int main(void) {
 
-	uint8 requiredFrequency = 2; // Required Frequency in KHz
+	float requiredFrequency1		= 		10		; 	// Required Frequency in KHz
+	float requiredFrequency2 	= 		5		; 	// Required Frequency in KHz
+	float requiredFrequency3 	= 		2.5	; 	// Required Frequency in KHz
+
+	GPIO_setupPinDirection(PORT_C, PIN_0, PIN_OUTPUT);
+	GPIO_setupPinDirection(PORT_C, PIN_1, PIN_OUTPUT);
+	GPIO_setupPinDirection(PORT_C, PIN_2, PIN_OUTPUT);
+
+	//Timer_setCTCMode_interruptFreq(requiredFrequency1);
+
+	OCRValue = Timer_setCTCMode_interruptFreq(requiredFrequency1);
 
 	while (1) {
-		Timer_setOutputCompare(requiredFrequency);
 
 	}
 }

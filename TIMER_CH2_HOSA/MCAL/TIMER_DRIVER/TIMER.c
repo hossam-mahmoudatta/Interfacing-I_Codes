@@ -71,10 +71,17 @@ void Timer0_normalMode(void) {
 }
 
 void Timer0_compareMode(void) {
-	GPIO_setupPinDirection(PORT_B, PIN_3, PIN_OUTPUT);
+	//GPIO_setupPinDirection(PORT_B, PIN_3, PIN_OUTPUT);
 	SET_BIT(TCCR0, FOC0);
 	CLR_BIT(TCCR0, WGM00);
 	SET_BIT(TCCR0, WGM01);
+#if (INTERRUPT_MODE == INTERRUPT_ENABLE)
+	SET_BIT(TIMSK, OCIE0);
+	SET_BIT(SREG, 7); // Bit 7 – i bit: Global Interrupt Enable
+#elif (INTERRUPT_MODE == INTERRUPT_DISABLE)
+	CLR_BIT(TIMSK, OCIE0);
+#endif
+
 #if (CTC_MODE == CTC_NORMAL)
 	CLR_BIT(TCCR0, COM01);
 	CLR_BIT(TCCR0, COM00);
@@ -502,7 +509,7 @@ void Timer_setInterruptDelay(float32 timeDelay) {
 #endif
 }
 
-void Timer_setOutputCompare(uint8 freqKHZ) {
+void Timer_setCTCMode_normalFreq(float freqKHZ, uint8 port_num, uint8 pin_num) {
 	// CTC: Clear Timer on Compare Match
 	// Our equation for the CTC Mode
 	// Focn = F_CPU / (2N*(1 + OCRn))
@@ -510,15 +517,18 @@ void Timer_setOutputCompare(uint8 freqKHZ) {
 	// Focn, FCPU, N,,, so i will calculate the OCRn
 	// Thus solving my problem.
 
-	float32 OCRn = 0;
+	GPIO_setupPinDirection(port_num, pin_num, PIN_OUTPUT);
+	GPIO_writePin(port_num, pin_num, LOGIC_LOW);
 
 #if (TIMER_SELECT == TIMER0)
 	// Using the Timer CTC Mode
 	Timer0_Init();
-	TCNT0 = 0;
-	OCR0 				= ceil( (float32)F_CPU / (2 * PRESCALER_VALUE * freqKHZ * 1000) ) - 1;
+	TCNT0 	= 0;
+	OCR0 		= 0;
+	OCR0 		= ceil( (float32)F_CPU / (2 * PRESCALER_VALUE * freqKHZ * 1000) ) - 1;
 
-	while (BIT_IS_SET(TIFR, OCF0)) {
+	if (BIT_IS_SET(TIFR, OCF0)) {
+		GPIO_togglePin(port_num, pin_num);
 		SET_BIT(TIFR, OCF0);
 	}
 
@@ -551,3 +561,106 @@ void Timer_setOutputCompare(uint8 freqKHZ) {
 	TCNT2 = 0x00;
 #endif
 }
+
+
+uint8 Timer_setCTCMode_interruptFreq(float freqKHZ) {
+	// CTC: Clear Timer on Compare Match
+	// Our equation for the CTC Mode
+	// Focn = F_CPU / (2N*(1 + OCRn))
+	// For i.e: Focn = 2 KHz, what are my knowns?
+	// Focn, FCPU, N,,, so i will calculate the OCRn
+	// Thus solving my problem.
+
+#if (TIMER_SELECT == TIMER0)
+	// Using the Timer CTC Mode
+	Timer0_Init();
+	TCNT0 	= 0;
+	OCR0 		= 0;
+	OCR0 		= ceil( (float32)F_CPU / (2 * PRESCALER_VALUE * freqKHZ * 1000) ) - 1;
+
+	return OCR0;
+
+#elif (TIMER_SELECT == TIMER1)
+	TCNT1 = 0x00;
+	while (overFlowCounter < overflowAmount) {
+		while (BIT_IS_CLR(TIFR, OCF1A)) {
+			// This function is a Busy Wait
+		}
+		// Clear the overflow flag
+		CLR_BIT(TIFR, OCF1A);
+		overFlowCounter++;
+	}
+	overFlowCounter = 0;
+	TCNT1 = 0x00;
+
+
+#elif (TIMER_SELECT == TIMER2)
+	TCNT2 = 0x00;
+	while (overFlowCounter < overflowAmount) {
+		while (BIT_IS_CLR(TIFR, OCF2)) {
+			// This function is a Busy Wait
+		}
+		// Clear the overflow flag
+		CLR_BIT(TIFR, OCF2);
+		overFlowCounter++;
+	}
+	overFlowCounter = 0;
+	TCNT2 = 0x00;
+#endif
+}
+
+
+/*
+void Timer_setCTCMode_interruptFreq(float freqKHZ, uint8 port_num, uint8 pin_num) {
+	// CTC: Clear Timer on Compare Match
+	// Our equation for the CTC Mode
+	// Focn = F_CPU / (2N*(1 + OCRn))
+	// For i.e: Focn = 2 KHz, what are my knowns?
+	// Focn, FCPU, N,,, so i will calculate the OCRn
+	// Thus solving my problem.
+
+	GPIO_setupPinDirection(port_num, pin_num, PIN_OUTPUT);
+	GPIO_writePin(port_num, pin_num, LOGIC_LOW);
+
+#if (TIMER_SELECT == TIMER0)
+	// Using the Timer CTC Mode
+	Timer0_Init();
+	TCNT0 	= 0;
+	OCR0 		= 0;
+	OCR0 		= ceil( (float32)F_CPU / (2 * PRESCALER_VALUE * freqKHZ * 1000) ) - 1;
+
+	if (BIT_IS_SET(TIFR, OCF0)) {
+		GPIO_togglePin(port_num, pin_num);
+		SET_BIT(TIFR, OCF0);
+	}
+
+
+#elif (TIMER_SELECT == TIMER1)
+	TCNT1 = 0x00;
+	while (overFlowCounter < overflowAmount) {
+		while (BIT_IS_CLR(TIFR, OCF1A)) {
+			// This function is a Busy Wait
+		}
+		// Clear the overflow flag
+		CLR_BIT(TIFR, OCF1A);
+		overFlowCounter++;
+	}
+	overFlowCounter = 0;
+	TCNT1 = 0x00;
+
+
+#elif (TIMER_SELECT == TIMER2)
+	TCNT2 = 0x00;
+	while (overFlowCounter < overflowAmount) {
+		while (BIT_IS_CLR(TIFR, OCF2)) {
+			// This function is a Busy Wait
+		}
+		// Clear the overflow flag
+		CLR_BIT(TIFR, OCF2);
+		overFlowCounter++;
+	}
+	overFlowCounter = 0;
+	TCNT2 = 0x00;
+#endif
+}
+*/

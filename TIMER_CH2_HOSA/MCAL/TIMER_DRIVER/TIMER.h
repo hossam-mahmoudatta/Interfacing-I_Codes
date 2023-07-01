@@ -38,7 +38,7 @@
 #define PRESCALER_0    				1
 #define NO_CLOCK   					0
 
-#define PRESCALER_VALUE    	PRESCALER_0
+#define PRESCALER_VALUE    	PRESCALER_8
 
 #define NORMAL_MODE 				0
 #define COMPARE_MODE  			2
@@ -56,7 +56,7 @@
 #define CTC_CLEAR   					2	// Clear OC0
 #define CTC_SET   						3	// Set OC0
 
-#define CTC_MODE    					CTC_TOGGLE
+#define CTC_MODE    					CTC_NORMAL
 
 #define FASTPWM_NORMAL		0	// OC0 is disconnected
 #define FASTPWM_NOINVERT 	2	// Non Inverting OC0
@@ -173,27 +173,31 @@
 void Timer0_Init(void);
 void Timer0_setPrescaler(void);
 void Timer0_setMode(void);
-void Timer0_normalMode(void);
-void Timer0_compareMode(void);
-void Timer0_fastPWMMode(void);
+void Timer0_normalInit(void);
+void Timer0_CTCInit(void);
+void Timer0_fastPWMInit(void);
 
 void Timer1_Init(void);
 void Timer1_setPrescaler(void);
 void Timer1_setMode(void);
-void Timer1_normalMode(void);
-void Timer1_compareMode(void);
-void Timer1_fastPWMMode(void);
+void Timer1_normalInit(void);
+void Timer1_CTCInit(void);
+void Timer1_fastPWMInit(void);
 
 void Timer2_Init(void);
 void Timer2_setPrescaler(void);
 void Timer2_setMode(void);
-void Timer2_normalMode(void);
-void Timer2_compareMode(void);
-void Timer2_fastPWMMode(void);
+void Timer2_normalInit(void);
+void Timer2_CTCInit(void);
+void Timer2_fastPWMInit(void);
 
-void Timer_setNormalDelay(float32 timeDelay);
-void Timer_setInterruptDelay(float32 timeDelay);
-void Timer_setOutputCompare(uint8 freqKHZ);
+void Timer_setNormalMode_normalDelay(float32 timeDelay);
+void Timer_setNormalMode_interruptDelay(float32 timeDelay);
+void Timer_setCTCMode_normalFreq(float freqKHZ, uint8 port_num, uint8 pin_num);
+uint8 Timer_setCTCMode_interruptFreq(float freqKHZ);
+// void Timer_setCTCMode_interruptFreq(float freqKHZ, uint8 port_num, uint8 pin_num);
+void Timer_setfastPWMMode_normalFreq(float freqKHZ, uint8 port_num, uint8 pin_num);
+void Timer_setfastPWMMode_interruptFreq(float freqKHZ, uint8 port_num, uint8 pin_num);
 
 /*
 void Timer_Start(void);
